@@ -4,6 +4,7 @@ from sqlalchemy import func
 from model import User
 from model import Rating
 from model import Movie
+from datetime import datetime
 
 from model import connect_to_db, db
 from server import app
@@ -46,7 +47,15 @@ def load_movies():
         print line
         movie_id, title, nodatetime_rel, video_rel, imdb_url = line
         # nodatetime_rel format is 01-Jan-1995 
-        released_at = datetime.strptime(nodatetime_rel, %d-%b-%Y)
+        
+        if nodatetime_rel:
+            released_at = datetime.strptime(nodatetime_rel, "%d-%b-%Y") 
+        #released_at looks like (1995, 1, 1)
+        else:
+            released_at = None 
+
+        # takes out duplicative year from title
+        title = title[:-7]
 
         film = Movie(movie_id=movie_id,
                      title=title, 
@@ -60,6 +69,19 @@ def load_movies():
 def load_ratings():
     """Load ratings from u.data into database."""
 
+    Rating.query.delete()    #to prevent duplicate ratings
+
+    for line in open("seed_data/u.data"):
+        line = line.rstrip()
+        line = line.split()
+        print line
+        user_id, movie_id, score, timestamp = line 
+
+        single_rating = Rating(user_id=user_id,
+                            movie_id=movie_id,
+                            score=score)
+        db.session.add(single_rating)
+    db.session.commit()
 
 def set_val_user_id():
     """Set value for the next user_id after seeding database"""
@@ -81,7 +103,7 @@ if __name__ == "__main__":
     db.create_all()
 
     # Import different types of data
-    # load_users()
-    # load_movies()
-    # load_ratings()
+    load_users()
+    load_movies()
+    load_ratings()
     # set_val_user_id()
