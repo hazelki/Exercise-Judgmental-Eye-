@@ -34,23 +34,36 @@ def user_list():
     return render_template("user_list.html", users=users)
 
 
-@app.route('/login')
+
+@app.route('/login', methods=['GET'])
 def user_login():
 
     return render_template("user_login.html")
 
 
+@app.route('/confirm', methods=["POST"])
+def checkdb():
+    """Checks database for user email and password"""
+
+    uemail = request.form.get("useremail")
+    upassword = request.form.get("userpassword")
+
+  # E will be an object if user email present in database and E will be None if not in db
+    E = User.query.filter(User.email==uemail).first()
+    P = User.query.filter(User.password==upassword).first()
+
+    if E == None or P == None: 
+        print "Please try again and enter a different email address!"
+        return render_template("user_login.html")
+    else: 
+        db.session.commit() 
+        return redirect ('/')
+
+
 @app.route('/register', methods=['GET'])
 def register_form():
 
-    return render_template("form_input.html")
-
-
-@app.route('/submit', methods=['POST'])
-def register_process():
-
-    return redirect("/")
-
+    return render_template("register_input.html")
 
 
 if __name__ == "__main__":

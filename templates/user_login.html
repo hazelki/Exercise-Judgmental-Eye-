@@ -1,12 +1,19 @@
-{% extend 'base.html'%}
+{% extends 'base.html' %}
 
 {% block content %}
 
-<form action="/" method="POST">
-    Username: <input type="text">
-    Password: <input type="password">
-    <input type="submit" value="Login!">
+<form action="/confirm" method="POST">
+    Email: <input type="text" name="useremail"><br>
+    Password: <input type="password" name="userpassword">
+    <input type="submit" value="Login">
     
+</form>
+<br>
+<br>
+<br>
+<form action="/register" method="GET"> 
+    Don't have an account, register here:
+    <input type="submit" value="Register"> 
 </form>
 
 {% endblock %}
