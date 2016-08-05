@@ -96,6 +96,7 @@ def set_val_user_id():
     db.session.commit()
 
 
+
 if __name__ == "__main__":
     connect_to_db(app)
 

@@ -1,4 +1,13 @@
- <input type="text" name="age">
-    <input type="text" name="zipcode">
-    
-    <input type="text" name="{{ title }}">
+{% extends 'base.html' %}
+{% block content %}
+
+    Hi! Your age is {{ user.age }} and you live in {{ user.zipcode }}.
+
+    <ul>
+        {% for rating in user.ratings %}
+        <li>Title:{{ rating.film.title }} Rating:{{ rating.score }}, </li>
+        {% endfor %}
+    </ul>
+
+
+{% endblock %}

@@ -26,15 +26,6 @@ def index():
     return render_template("homepage.html")
 
 
-@app.route('/users')
-def user_list():
-    """Show list of users"""
-
-    users = User.query.all()
-    return render_template("user_list.html", users=users)
-
-
-
 @app.route('/login', methods=['GET'])
 def user_login():
 
@@ -45,25 +36,70 @@ def user_login():
 def checkdb():
     """Checks database for user email and password"""
 
-    uemail = request.form.get("useremail")
-    upassword = request.form.get("userpassword")
+    u_email = request.form.get("useremail")
+    u_password = request.form.get("userpassword")
 
-  # E will be an object if user email present in database and E will be None if not in db
-    E = User.query.filter(User.email==uemail).first()
-    P = User.query.filter(User.password==upassword).first()
+  # user will be a User object if user email present in database and E will be None if not in db
+    user = User.query.filter(User.email==u_email).first()
 
-    if E == None or P == None: 
-        print "Please try again and enter a different email address!"
+    if user.password != u_password or not user: 
         return render_template("user_login.html")
-    else: 
-        db.session.commit() 
-        return redirect ('/')
+    
+    return redirect ('/users/{}'.format(user.user_id))
 
 
 @app.route('/register', methods=['GET'])
 def register_form():
+    """Allows new users to register."""
 
     return render_template("register_input.html")
+
+
+@app.route('/users')
+def user_list():
+    """Show list of users"""
+
+    users = User.query.all()
+    return render_template("user_list.html", users=users)
+
+
+@app.route('/users/<int:user_id>')
+def users_page(user_id):
+    """Once logged in, user can access their current ratings."""
+
+    # user = User.query.filter(User.user_id==user_id).first()
+    user_id_confirm = User.query.get(user_id)
+    # score = user_id_confirm.score
+    # age = user_id_confirm.age
+    # zipcode = user_id_confirm.zipcode
+    # film = user_id_confirm.film.all()
+    return render_template("user_info.html", user=user_id_confirm)
+
+
+@app.route('/movies')
+def return_movie_list(film):
+    """Returns a movie list."""
+
+    film = Rating.query.all()
+    return render_template("movie_list.html", film=film)
+
+
+@app.route('/movies/<int:movie_id>')
+def film_detail_page(movie_id):
+    """Returns all the details about each film."""
+
+    # query movie table for movie_id use .get
+    # query rating table to get all ratings for that movie
+    movie_ratings = Ratings.query.filter(movie_id == movie_id).all()
+    # get movie information for our movie
+    film_details = Movie.query.get(movie_id)
+
+    cursor = db.session.execute(
+        "SELECT * FROM movies")
+    film_details = cursor.fetchall()
+    db.session.commit()
+    return render_template("movie_details.html", film_details=film_details)
+
 
 
 if __name__ == "__main__":
